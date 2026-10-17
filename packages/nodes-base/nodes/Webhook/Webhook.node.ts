@@ -16,6 +16,7 @@ import {
 	NodeOperationError,
 	Node,
 	n8nOAuth2Auth,
+	redactedHeaders,
 	resolveOAuthClientMode,
 } from 'n8n-workflow';
 import { pipeline } from 'stream/promises';
@@ -282,6 +283,9 @@ export class Webhook extends Node {
 				return { noWebhookResponse: true };
 			}
 			throw error;
+		} finally {
+			// Update the headers that the execution context already references.
+			Object.assign(req.headers, redactedHeaders(req));
 		}
 
 		const node = context.getNode();

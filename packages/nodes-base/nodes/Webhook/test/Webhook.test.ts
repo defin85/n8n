@@ -86,6 +86,7 @@ describe('Test Webhook Node', () => {
 			typeVersion: 1.1,
 		} as any);
 		const req = mock<Request>();
+		req.headers = {};
 		req.contentType = 'multipart/form-data';
 		context.getRequestObject.mockReturnValue(req);
 

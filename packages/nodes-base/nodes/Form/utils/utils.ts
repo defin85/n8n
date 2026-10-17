@@ -30,6 +30,7 @@ import {
 	tryToParseJsonToFormFields,
 	UnexpectedError,
 	buildCredentialConnectionsRequiredResponse,
+	redactedHeaders,
 } from 'n8n-workflow';
 import * as a from 'node:assert';
 import sanitize from 'sanitize-html';
@@ -1420,7 +1421,7 @@ export async function formWebhook(
 			if (!user) return { noWebhookResponse: true };
 			authedUser = user;
 			oAuth2Token = token ?? undefined;
-		} else {
+		} else if (authentication !== 'none') {
 			try {
 				await validateWebhookAuthentication(context, authProperty);
 			} catch (error) {
@@ -1430,6 +1431,9 @@ export async function formWebhook(
 					return { noWebhookResponse: true };
 				}
 				throw error;
+			} finally {
+				// Update the headers that the execution context already references.
+				Object.assign(req.headers, redactedHeaders(req));
 			}
 		}
 	}
